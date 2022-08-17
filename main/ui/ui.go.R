@@ -4,7 +4,6 @@ tabPanel(
     tabPanel(
       "Demo",
       br(),
-      br(),
       sidebarLayout(
         sidebarPanel(
           p("Is there a linear relationship between the response variable and this independent variable? no? then:", style = "color:black;text-align:justify"),
@@ -48,6 +47,7 @@ tabPanel(
       # 参数设置
       column(
         width = 6,
+        style = "background-color:lavender;border-radius: 10px",
         # title
         h4("Parameter Setting", align = "center"),
         HTML("<hr style='background-color: #282828'>"),
@@ -127,7 +127,9 @@ tabPanel(
           width = "95%",
           label = "Submit",
           icon = icon("arrow-up")
-        )
+        ),
+        br(),
+        br(),
       ),
       # 上传数据预览
       column(
@@ -143,9 +145,9 @@ tabPanel(
     tabPanel(
       "Table",
       br(),
-      br(),
       column(
         width = 3,
+        style = "background-color:lavender;border-radius: 10px",
         # title
         h4("Parameter Setting", align = "center"),
         HTML("<hr style='background-color: #282828'>"),
@@ -196,12 +198,14 @@ tabPanel(
           "download.tab.go",
           label = h5("Download table"),
           style = "width:95%;"
-        )
+        ),
+        br(),
+        br()
       ),
-
+      column(width = 1),
       # 表格预览
       column(
-        width = 9
+        width = 8 # ,style = "border:1px solid black;border-radius: 10px",
       )
     ),
 
@@ -209,9 +213,9 @@ tabPanel(
     tabPanel(
       "Plot",
       br(),
-      br(),
       column(
         width = 3,
+        style = "height:550px;background-color:lavender;border-radius: 10px",
         # figure type
         selectInput(
           "fig.type.go",
@@ -265,11 +269,14 @@ tabPanel(
           "download.plot.go",
           label = h5("Download plot"),
           style = "width:95%;"
-        )
+        ),
+        br(),
+        br()
       ),
+      column(width = 1),
       column(
-        width = 9,
-        style = "border:1px solid black",
+        width = 8,
+        style = "height:550px; border:1px solid black;border-radius: 10px",
         plotOutput("plot.go")
       )
     )
