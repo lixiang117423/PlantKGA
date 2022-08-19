@@ -49,25 +49,38 @@ tabPanel(
         width = 6,
         style = "height:550px;background-color:lavender;border-radius: 10px",
         # title
-        h4("Parameter Setting", align = "center"),
-        HTML("<hr style='background-color: #282828'>"),
+        #h5("Parameter Setting", align = "center"),
+        #HTML("<hr style='background-color: #282828'>"),
+        # upload file
+        fileInput(
+          "uploadfile.go",
+          label = h5("Upload", align = "center"),
+          # label = HTML('<h6 style="text-align:right">Upload file</h6>'),
+          accept = ".txt",
+          buttonLabel = "View...",
+          width = "96%"
+        ),
+        # 物种选择+id类型
         splitLayout(
           cellWidths = c("50%", "50%"),
-          # upload file
-          fileInput(
-            "uploadfile.go",
-            label = h5("Upload", align = "center"),
-            # label = HTML('<h6 style="text-align:right">Upload file</h6>'),
-            accept = ".txt",
-            buttonLabel = "View..."
-          ),
           # species id
           textInput(
             "speciesid.go",
             label = h5("Species ID"),
             value = "1"
+          ),
+          # id type
+          selectInput(
+            "id.type.go",
+            label = h5("ID type"),
+            choices = list(
+              "Gene" = "gene",
+              "mRNA" = "mrna"
+            ),
+            selected = "gene"
           )
         ),
+        #
         splitLayout(
           cellWidths = c("50%", "50%"),
           # pvalue cutoff
@@ -95,7 +108,7 @@ tabPanel(
           numericInput(
             "min.gene.go",
             label = h5("minGene"),
-            value = 1
+            value = 10
           ),
           # max genes
           numericInput(
@@ -109,7 +122,7 @@ tabPanel(
         selectInput(
           "adjust.method.go",
           label = h5("Pvalue adjust method"),
-          width = "95%",
+          width = "98%",
           choices = list(
             "holm" = "holm",
             "hochberg" = "hochberg",
@@ -122,20 +135,29 @@ tabPanel(
           ),
           selected = "BH"
         ),
-        # submit
-        actionButton(
-          "upload.setting.go",
-          width = "95%",
-          label = "Submit",
-          icon = icon("arrow-up")
+        splitLayout(
+          cellWidths = c("50%", "50%"),
+          # download example
+          downloadBttn(
+            "downlaod.example.go",
+            size = "sm",
+            style = "float",
+            label = "Download example of input for GO"#,icon = icon("arrow-down")
+          ),
+          # submit
+          actionButton(
+            "upload.setting.go",
+            width = "96%",
+            label = "Submit",
+            icon = icon("arrow-up")
+          ),
         ),
-        br(),
         br(),
       ),
       # # 空一列
       # column(
       #   width = 1
-      # ), 
+      # ),
       # 输出选择物种的图片
       column(
         width = 6,
@@ -146,6 +168,7 @@ tabPanel(
       ),
       br()
     ),
+    hr(),
 
     # 输出结果表格
     tabPanel(
@@ -208,10 +231,13 @@ tabPanel(
         br(),
         br()
       ),
-      column(width = 1),
+      #column(width = 1),
       # 表格预览
       column(
-        width = 8 # ,style = "border:1px solid black;border-radius: 10px",
+        width = 9, # ,style = "border:1px solid black;border-radius: 10px",
+        DT::dataTableOutput(
+          "go.res.table"
+        )
       )
     ),
 

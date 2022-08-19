@@ -2,8 +2,6 @@ library(shiny)
 library(shinythemes)
 library(DT)
 library(ggplot2)
-library(tseries)
-library(RcmdrMisc)
 library(colourpicker)
 
 shinyUI(fluidPage(
