@@ -47,7 +47,7 @@ tabPanel(
       # 参数设置
       column(
         width = 6,
-        style = "background-color:lavender;border-radius: 10px",
+        style = "height:550px;background-color:lavender;border-radius: 10px",
         # title
         h4("Parameter Setting", align = "center"),
         HTML("<hr style='background-color: #282828'>"),
@@ -58,13 +58,14 @@ tabPanel(
             "uploadfile.go",
             label = h5("Upload", align = "center"),
             # label = HTML('<h6 style="text-align:right">Upload file</h6>'),
-            accept = NULL,
+            accept = ".txt",
             buttonLabel = "View..."
           ),
           # species id
           textInput(
             "speciesid.go",
-            label = h5("Species ID")
+            label = h5("Species ID"),
+            value = "1"
           )
         ),
         splitLayout(
@@ -131,11 +132,16 @@ tabPanel(
         br(),
         br(),
       ),
-      # 上传数据预览
+      # # 空一列
+      # column(
+      #   width = 1
+      # ), 
+      # 输出选择物种的图片
       column(
         width = 6,
-        DT::dataTableOutput(
-          "upload.preview.go"
+        style = "height:550px;border-radius: 10px",
+        uiOutput(
+          "go.species.image"
         )
       ),
       br()

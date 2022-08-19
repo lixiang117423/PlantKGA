@@ -1,15 +1,11 @@
 library(shiny)
 library(shinythemes)
+library(shinyWidgets)
 library(DT)
 library(ggplot2)
-library(car)
-library(nortest)
-library(tseries)
-library(RcmdrMisc)
 library(lmtest)
 
-datos <-read.csv("www/dataset.csv",dec = ",")
-
-shinyServer(function(input, output){
+shinyServer(function(session, input, output){
   source("main/server/server.home.R", local = TRUE, encoding = "UTF-8")
+  source("main/server/server.go.R", local = TRUE, encoding = "UTF-8")
 })

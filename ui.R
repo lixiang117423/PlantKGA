@@ -2,11 +2,8 @@ library(shiny)
 library(shinythemes)
 library(DT)
 library(ggplot2)
-library(car)
-library(nortest)
 library(tseries)
 library(RcmdrMisc)
-library(lmtest)
 library(colourpicker)
 
 shinyUI(fluidPage(
