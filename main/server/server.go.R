@@ -186,7 +186,7 @@ output$download.tab.go <- downloadHandler(
 
 # 富集分析结果绘图
 observeEvent(input$upload.plot.go, {
-  plot.go = reactiveValues(plot = NULL)
+  save(iris, file = paste0("userdata/", file.time, "/test.RData"))
   # 加载数据
   load(paste0("userdata/", file.time, "/go.res.RData"))
   load("data/go.RData")
@@ -249,11 +249,11 @@ observeEvent(input$upload.plot.go, {
     #png(paste0("userdata/", file.time, "/plot.res.png"))
     ggplot(
       df.plot.go,
-      aes(Description, GeneRatio, fill = aes_string(input$fill.by.go))
+      aes_string("Description", "GeneRatio", fill = input$fill.by.go)
     ) +
       geom_bar(stat = "identity") +
       geom_text(aes(Description, y = GeneRatio + 0.011, label = Count), size = 5) +
-      scale_fill_gradient(low = input$low.fill.go, high = input$max.fill.go) +
+      #scale_fill_gradient(low = input$low.fill.go, high = input$max.fill.go) +
       # scale_y_continuous(expand = c(0, 0), guide = "prism_offset_minor") +
       scale_y_continuous(expand = c(0, 0)) +
       labs(x = "GO term") +
@@ -263,19 +263,17 @@ observeEvent(input$upload.plot.go, {
         legend.position = input$legend.posi.go,
         legend.title = element_text(),
         axis.text = element_text(color = "black", size = 12)
-      ) -> plot.go$plot
+      ) ->> lx
+    
+    ggplot2::ggsave(
+      filename = paste0("userdata/", file.time, "/plot.res.png"),
+      width = 10, height = 12, dpi = 300
+    )
     #dev.off()
     
-  } else {
+  }else {
     NULL
   }
-  
-  ggplot2::ggsave(
-    plot = plot.go$plot,
-    filename = paste0("userdata/", file.time, "/plot.res.png"),
-    width = 10, height = 12, dpi = 300
-  )
-  
 })
 
 
