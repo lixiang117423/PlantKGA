@@ -1,8 +1,13 @@
 library(shiny)
 library(shinythemes)
+library(shinyWidgets)
 library(DT)
 library(ggplot2)
 library(colourpicker)
+
+# in shiny server, please run the next code
+#library(dbplyr,lib.loc = "/home/lixiang/miniconda3/envs/Rpackages/lib/R/library/")
+
 
 shinyUI(fluidPage(
   theme = shinytheme("cerulean"),

@@ -29,7 +29,7 @@ observeEvent(
     dir.create(paste0("userdata/", file.time))
 
     # 读入数据
-    df.gene.go <- read.table(input$uploadfile.go$datapath,
+    df.gene.go <- data.table::fread(input$uploadfile.go$datapath,
       header = FALSE,
       stringsAsFactors = TRUE,
       encoding = "UTF-8"
@@ -47,16 +47,6 @@ observeEvent(
     )
 
     save(df.gene.go, df.para, file = paste0("./userdata/", file.time, "/data.RData"))
-
-    # 显示选择的物种的图片
-    output$go.species.image <- renderUI({
-      tags$image(
-        src = paste0("image/", input$speciesid.go, ".png"),
-        height = "550px",
-        width = "660px",
-        `border-radius` = "100%"
-      )
-    })
 
     # 开始进行GO富集分析
 
@@ -97,7 +87,7 @@ observeEvent(
     }
 
     go.rich@result$GeneRatio <- go.rich@result$a / go.rich@result$b
-    go.res <- go.rich@result %>% 
+    go.res <- go.rich@result %>%
       dplyr::filter(
         pvalue <= input$pvalue.go,
         qvalue <= input$qvalue.go
@@ -105,6 +95,16 @@ observeEvent(
 
     # 保存结果
     save(go.res, file = paste0("userdata/", file.time, "/go.res.RData"))
+
+    # 显示选择的物种的图片
+    output$go.species.image <- renderUI({
+      tags$image(
+        src = paste0("image/", input$speciesid.go, ".png"),
+        height = "550px",
+        width = "660px",
+        `border-radius` = "100%"
+      )
+    })
   }
 )
 
@@ -145,7 +145,7 @@ observeEvent(
 
         # 表格选项
         options = list(
-          lengthMenu = list(c(5, 10, 20, 50), c("5", "10", "20", "500")), pageLength = 10,
+          lengthMenu = list(c(5, 10, 20, 50), c("5", "10", "20", "500")), pageLength = 5,
           initComplete = JS(
             "function(settings, json) {",
             "$(this.api().table().header()).css({'background-color': 'moccasin', 'color': '1c1b1b'});",
@@ -183,3 +183,99 @@ output$download.tab.go <- downloadHandler(
     }
   }
 )
+
+# 富集分析结果绘图
+observeEvent(input$upload.plot.go, {
+  plot.go = reactiveValues(plot = NULL)
+  # 加载数据
+  load(paste0("userdata/", file.time, "/go.res.RData"))
+  load("data/go.RData")
+  
+  # 对数据排序
+  go.res[!duplicated(go.res$ID), ] %>%
+    dplyr::rename(goid = ID) %>%
+    dplyr::left_join(df.go[, c("goid", "ontology")], by = "goid") %>%
+    dplyr::filter(!duplicated(goid)) %>%
+    dplyr::rename(ID = goid) -> df.plot.go
+  
+  if (input$order.by.go == "GeneRatio") {
+    df.plot.go %>%
+      dplyr::arrange(-GeneRatio) %>%
+      dplyr::mutate(Description = factor(Description,
+                                         levels = unique(Description)
+      )) -> df.plot.go
+  } else if (input$order.by.go == "pvalue") {
+    df.plot.go %>%
+      dplyr::arrange(-pvalue) %>%
+      dplyr::mutate(Description = factor(Description,
+                                         levels = unique(Description)
+      )) -> df.plot.go
+  } else if (input$order.by.go == "qvalue") {
+    df.plot.go %>%
+      dplyr::arrange(-qvalue) %>%
+      dplyr::mutate(Description = factor(Description,
+                                         levels = unique(Description)
+      )) -> df.plot.go
+  } else if (input$order.by.go == "pvalueg") {
+    df.plot.go %>%
+      dplyr::group_by(ontology) %>%
+      dplyr::arrange(-pvalue) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(Description = factor(Description,
+                                         levels = unique(Description)
+      )) -> df.plot.go
+  } else if (input$order.by.go == "qvalueg") {
+    df.plot.go %>%
+      dplyr::group_by(ontology) %>%
+      dplyr::arrange(-qvalue) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(Description = factor(Description,
+                                         levels = unique(Description)
+      )) -> df.plot.go
+  } else {
+    df.plot.go %>%
+      dplyr::group_by(ontology) %>%
+      dplyr::arrange(-GeneRatio) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(Description = factor(Description,
+                                         levels = unique(Description)
+      )) -> df.plot.go
+  }
+  
+  # 绘图
+  # 如果是条形图
+  if (input$plottypego == "bar") {
+    
+    #png(paste0("userdata/", file.time, "/plot.res.png"))
+    ggplot(
+      df.plot.go,
+      aes(Description, GeneRatio, fill = aes_string(input$fill.by.go))
+    ) +
+      geom_bar(stat = "identity") +
+      geom_text(aes(Description, y = GeneRatio + 0.011, label = Count), size = 5) +
+      scale_fill_gradient(low = input$low.fill.go, high = input$max.fill.go) +
+      # scale_y_continuous(expand = c(0, 0), guide = "prism_offset_minor") +
+      scale_y_continuous(expand = c(0, 0)) +
+      labs(x = "GO term") +
+      coord_flip() +
+      ggthemes::theme_pander() +
+      theme(
+        legend.position = input$legend.posi.go,
+        legend.title = element_text(),
+        axis.text = element_text(color = "black", size = 12)
+      ) -> plot.go$plot
+    #dev.off()
+    
+  } else {
+    NULL
+  }
+  
+  ggplot2::ggsave(
+    plot = plot.go$plot,
+    filename = paste0("userdata/", file.time, "/plot.res.png"),
+    width = 10, height = 12, dpi = 300
+  )
+  
+})
+
+

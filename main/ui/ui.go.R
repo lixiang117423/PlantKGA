@@ -49,8 +49,8 @@ tabPanel(
         width = 6,
         style = "height:550px;background-color:lavender;border-radius: 10px",
         # title
-        #h5("Parameter Setting", align = "center"),
-        #HTML("<hr style='background-color: #282828'>"),
+        # h5("Parameter Setting", align = "center"),
+        # HTML("<hr style='background-color: #282828'>"),
         # upload file
         fileInput(
           "uploadfile.go",
@@ -142,7 +142,7 @@ tabPanel(
             "downlaod.example.go",
             size = "sm",
             style = "float",
-            label = "Download example of input for GO"#,icon = icon("arrow-down")
+            label = "Download example of input for GO" # ,icon = icon("arrow-down")
           ),
           # submit
           actionButton(
@@ -175,7 +175,7 @@ tabPanel(
       "Table",
       br(),
       column(
-        width = 3,
+        width = 2,
         style = "background-color:lavender;border-radius: 10px",
         # title
         h4("Parameter Setting", align = "center"),
@@ -231,7 +231,7 @@ tabPanel(
         br(),
         br()
       ),
-      #column(width = 1),
+       column(width = 1),
       # 表格预览
       column(
         width = 9, # ,style = "border:1px solid black;border-radius: 10px",
@@ -244,19 +244,94 @@ tabPanel(
     # 绘图结果表格
     tabPanel(
       "Plot",
-      br(),
       column(
-        width = 3,
-        style = "height:550px;background-color:lavender;border-radius: 10px",
+        width = 2,
+        style = "height:560px;background-color:lavender;border-radius: 10px",
+        # order by
+        selectInput(
+          "order.by.go",
+          label = h5("Order by"),
+          choices = list(
+            "GeneRatio" = "GeneRatio",
+            "GeneRatio + group" = "GeneRatiog",
+            "pvalue" = "pvalue",
+            "pvalue + group" = "pvalueg",
+            "qvalue" = "qvalue",
+            "qvalue + group" = "qvalueg"
+          ),
+          selected = "GeneRatio"
+        ),
         # figure type
         selectInput(
-          "fig.type.go",
+          "plottypego",
           label = h5("Figure type"),
           choices = list(
             "Bar" = "bar",
             "Point" = "point"
           ),
-          selected = "point"
+          selected = "bar"
+        ),
+        # 根据上一步选择fill还是color
+        conditionalPanel(
+          condition = "input.plottypego == 'bar'",
+          
+          # fill by
+          selectInput(
+            "fill.by.go",
+            label = h5("Fill by"),
+            choices = list(
+              "GeneRatio" = "GeneRatio",
+              "pvalue" = "pvalue",
+              "qvalue" = "qvalue"
+            ),
+            selected = "qvalue"
+          ),
+          # fill color low
+          colourInput(
+            "low.fill.go",
+            label = h5("Fill color for min"),
+            "blue",
+            returnName = TRUE,
+            closeOnClick = TRUE
+          ),
+          # fill color max
+          colourInput(
+            "max.fill.go",
+            label = h5("Fill color for max"),
+            "red",
+            returnName = TRUE,
+            closeOnClick = TRUE
+          ),
+        ),
+        conditionalPanel(
+          condition = "input.plottypego == 'point'",
+          # color by
+          selectInput(
+            "color.by.go",
+            label = h5("Color by"),
+            choices = list(
+              "GeneRatio" = "GeneRatio",
+              "pvalue" = "pvalue",
+              "qvalue" = "qvalue"
+            ),
+            selected = "qvalue"
+          ),
+          # fill color low
+          colourInput(
+            "low.color.go",
+            label = h5("Color for min"),
+            "blue",
+            returnName = TRUE,
+            closeOnClick = TRUE
+          ),
+          # fill color max
+          colourInput(
+            "max.color.go",
+            label = h5("Color for max"),
+            "red",
+            returnName = TRUE,
+            closeOnClick = TRUE
+          ),
         ),
         # legend posi
         selectInput(
@@ -270,23 +345,57 @@ tabPanel(
           ),
           selected = "right"
         ),
+        br(),
+        br()
+      ),
+      column(width = 1),
+      # 导出图形参数
+      column(
+        width = 2,
+        style = "height:560px;background-color:lavender;border-radius: 10px",
 
-        # fill color low
-        colourInput(
-          "low.color.go",
-          label = h5("Fill color for min"),
-          "blue",
-          returnName = TRUE,
-          closeOnClick = TRUE
+        # 输出类型
+        selectInput(
+          "out.fig.type.go",
+          label = h5("Output figure type"),
+          choices = list(
+            "PDF" = "pdf",
+            "PNG" = "png",
+            "TIFF" = "tiff",
+            "JPG/JPEG" = "jpg",
+            "PPT" = "pptx"
+          ),
+          selected = "pdf"
         ),
-        # fill color max
-        colourInput(
-          "max.color.go",
-          label = h5("Fill color for max"),
-          "red",
-          returnName = TRUE,
-          closeOnClick = TRUE
+
+        # width of figire
+        numericInput(
+          "width.plot.go",
+          label = h5("Width of figire"),
+          min = 1,
+          max = 20,
+          step = 1,
+          value = 4
         ),
+        # height of figire
+        numericInput(
+          "height.plot.go",
+          label = h5("Height of figire"),
+          min = 1,
+          max = 20,
+          step = 1,
+          value = 6
+        ),
+        # dpi of figure
+        numericInput(
+          "dpi.plot.go",
+          label = h5("DPI"),
+          min = 100,
+          max = 1000,
+          step = 50,
+          value = 300
+        ),
+        br(),
         # submit
         actionButton(
           "upload.plot.go",
@@ -296,19 +405,22 @@ tabPanel(
         ),
         br(),
         br(),
-        # download
-        downloadButton(
-          "download.plot.go",
-          label = h5("Download plot"),
-          style = "width:95%;"
-        ),
         br(),
-        br()
+        # 下载 图片
+        downloadButton(
+          "downlaod.plot.go",
+          label = h5("Download plot"),
+          style = "width:96%;"
+        )
       ),
-      column(width = 1),
+      # 空一列
       column(
-        width = 8,
-        style = "height:550px; border:1px solid black;border-radius: 10px",
+        width = 1
+      ),
+      # 展示图
+      column(
+        width = 6,
+        style = "height:560px; border:1px solid black;border-radius: 10px",
         plotOutput("plot.go")
       )
     )
