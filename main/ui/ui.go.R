@@ -231,7 +231,7 @@ tabPanel(
         br(),
         br()
       ),
-       column(width = 1),
+      column(width = 1),
       # 表格预览
       column(
         width = 9, # ,style = "border:1px solid black;border-radius: 10px",
@@ -274,7 +274,7 @@ tabPanel(
         # 根据上一步选择fill还是color
         conditionalPanel(
           condition = "input.plottypego == 'bar'",
-          
+
           # fill by
           selectInput(
             "fill.by.go",
@@ -375,7 +375,7 @@ tabPanel(
           min = 1,
           max = 20,
           step = 1,
-          value = 4
+          value = 8
         ),
         # height of figire
         numericInput(
@@ -384,7 +384,7 @@ tabPanel(
           min = 1,
           max = 20,
           step = 1,
-          value = 6
+          value = 8
         ),
         # dpi of figure
         numericInput(
@@ -413,15 +413,18 @@ tabPanel(
           style = "width:96%;"
         )
       ),
-      # 空一列
-      column(
-        width = 1
-      ),
+      # # 空一列
+      # column(
+      #   width = 1
+      # ),
       # 展示图
       column(
-        width = 6,
-        style = "height:560px; border:1px solid black;border-radius: 10px",
-        plotOutput("plot.go")
+        width = 7,
+        # style = "height:560px; border:1px solid black;border-radius: 10px",
+        # plotOutput("plot.go")
+        uiOutput(
+          "plot.go"
+        )
       )
     )
   )

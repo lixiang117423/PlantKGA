@@ -190,31 +190,31 @@ observeEvent(input$upload.plot.go, {
   # 加载数据
   load(paste0("userdata/", file.time, "/go.res.RData"))
   load("data/go.RData")
-  
+
   # 对数据排序
   go.res[!duplicated(go.res$ID), ] %>%
     dplyr::rename(goid = ID) %>%
     dplyr::left_join(df.go[, c("goid", "ontology")], by = "goid") %>%
     dplyr::filter(!duplicated(goid)) %>%
     dplyr::rename(ID = goid) -> df.plot.go
-  
+
   if (input$order.by.go == "GeneRatio") {
     df.plot.go %>%
       dplyr::arrange(-GeneRatio) %>%
       dplyr::mutate(Description = factor(Description,
-                                         levels = unique(Description)
+        levels = unique(Description)
       )) -> df.plot.go
   } else if (input$order.by.go == "pvalue") {
     df.plot.go %>%
       dplyr::arrange(-pvalue) %>%
       dplyr::mutate(Description = factor(Description,
-                                         levels = unique(Description)
+        levels = unique(Description)
       )) -> df.plot.go
   } else if (input$order.by.go == "qvalue") {
     df.plot.go %>%
       dplyr::arrange(-qvalue) %>%
       dplyr::mutate(Description = factor(Description,
-                                         levels = unique(Description)
+        levels = unique(Description)
       )) -> df.plot.go
   } else if (input$order.by.go == "pvalueg") {
     df.plot.go %>%
@@ -222,7 +222,7 @@ observeEvent(input$upload.plot.go, {
       dplyr::arrange(-pvalue) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(Description = factor(Description,
-                                         levels = unique(Description)
+        levels = unique(Description)
       )) -> df.plot.go
   } else if (input$order.by.go == "qvalueg") {
     df.plot.go %>%
@@ -230,7 +230,7 @@ observeEvent(input$upload.plot.go, {
       dplyr::arrange(-qvalue) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(Description = factor(Description,
-                                         levels = unique(Description)
+        levels = unique(Description)
       )) -> df.plot.go
   } else {
     df.plot.go %>%
@@ -238,22 +238,24 @@ observeEvent(input$upload.plot.go, {
       dplyr::arrange(-GeneRatio) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(Description = factor(Description,
-                                         levels = unique(Description)
+        levels = unique(Description)
       )) -> df.plot.go
   }
-  
+
   # 绘图
   # 如果是条形图
   if (input$plottypego == "bar") {
-    
-    #png(paste0("userdata/", file.time, "/plot.res.png"))
+
+    # png(paste0("userdata/", file.time, "/plot.res.png"))
     ggplot(
       df.plot.go,
       aes_string("Description", "GeneRatio", fill = input$fill.by.go)
     ) +
-      geom_bar(stat = "identity") +
-      geom_text(aes(Description, y = GeneRatio + 0.011, label = Count), size = 5) +
-      #scale_fill_gradient(low = input$low.fill.go, high = input$max.fill.go) +
+      geom_bar(stat = "identity", width = 0.7) +
+      geom_text(aes(Description, y = GeneRatio*1.1, label = Count), size = 5) +
+      geom_hline(yintercept = max(df.plot.go$GeneRatio)*1.2,
+                 color =  "white") +
+      scale_fill_gradient(low = input$low.fill.go, high = input$max.fill.go) +
       # scale_y_continuous(expand = c(0, 0), guide = "prism_offset_minor") +
       scale_y_continuous(expand = c(0, 0)) +
       labs(x = "GO term") +
@@ -263,17 +265,56 @@ observeEvent(input$upload.plot.go, {
         legend.position = input$legend.posi.go,
         legend.title = element_text(),
         axis.text = element_text(color = "black", size = 12)
-      ) ->> lx
-    
-    ggplot2::ggsave(
-      filename = paste0("userdata/", file.time, "/plot.res.png"),
-      width = 10, height = 12, dpi = 300
-    )
-    #dev.off()
-    
-  }else {
+      )
+  } else {
     NULL
   }
+
+  # 保存图片用于后续展示
+  ggplot2::ggsave(
+    filename = paste0("www/userimage/", file.time, ".png"),
+    width = 10, height = 8, dpi = 300
+  )
+
+  # 保存图片用于下载
+  if (input$out.fig.type.go == "pdf") {
+    fig.name <- paste0("userdata/", file.time, "/plot.go.pdf")
+  } else if (input$out.fig.type.go == "png") {
+    fig.name <- paste0("userdata/", file.time, "/plot.go.png")
+  } else if (input$out.fig.type.go == "tiff") {
+    fig.name <- paste0("userdata/", file.time, "/plot.go.tiff")
+  } else if (input$out.fig.type.go == "jpg") {
+    fig.name <- paste0("userdata/", file.time, "/plot.go.jpg")
+  } else {
+    fig.name <- paste0("userdata/", file.time, "/plot.go.pptx")
+  }
+
+  # 保存图片用于后续展示
+  ggplot2::ggsave(
+    filename = fig.name,
+    width = input$width.plot.go,
+    height = input$height.plot.go,
+    dpi = input$dpi.plot.go
+  )
+
+  # 输出图片
+  output$plot.go <- renderUI({
+    tags$image(
+      # src = paste0("userdata/", file.time, "/plot.res.png"),
+      src = paste0("userimage/", file.time, ".png"),
+      height = "560px",
+      width = "700px",
+      `border-radius` = "100%"
+    )
+  })
+
+  # 下载图片
+  output$downlaod.plot.go <- downloadHandler(
+    filename <- function() {
+      paste0("plot.go.res.", input$out.fig.type.go)
+    },
+    content <- function(file) {
+      file.copy(fig.name, file)
+    }
+  )
 })
-
-
